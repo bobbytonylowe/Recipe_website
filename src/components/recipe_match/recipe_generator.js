@@ -6,20 +6,25 @@ import {
   NavLink,
   Switch
 } from "react-router-dom";
+import Time from "./Time";
 
 const About = () => {
     
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
-    const [query, setQuery] = useState("paneer, onion");
+    const [query, setQuery] = useState("dish");
   
     useEffect(() => {
       async function getRecipes () {
-        console.log('???')
-        //onst response = await fetch(`https://recipe-test11.herokuapp.com/recipes/${query}`);
-        const response = await fetch(`/recipes/${query}`);
+        
+        // const response = await fetch(`https://recipe-test11.herokuapp.com/recipes/${query}`);
+        // const response = await fetch(`/search/${query}`);
+        const response = await fetch(`/search/${query}`);
+        
         const data = await response.json();
-        setRecipes(data.Recipes);
+        console.log(data.FilteredData)
+        setRecipes(data.FilteredData);
+        
       }
   
       getRecipes();
@@ -29,6 +34,7 @@ const About = () => {
 
     return(
         <div className="page">
+          <Time/>
         <Input className="Search-bar" icon='search' placeholder='Type ingredients...' onChange={(e) => setSearch(e.target.value)} />
         <NavLink to="/Next1" activeClassName="next">
         <Switch>
@@ -39,31 +45,23 @@ const About = () => {
         <Button className="Search-button" content="Search" onClick={() => setQuery(search) } />
         
 
-        <div className = 'recipe_generator-recipes' style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', marginTop: 30 }}>
-        {recipes.map(Recipes => (
+        <div className = 'recipe_generator-recipes' >
+
+
+        {recipes.map(FilteredData => (
             <Recipe
-            Titles={Recipes.Title}
-            Cuisine={Recipes.cuisine}
-            Ingredients={Recipes.Ingredients}
-            Matching_ingred	={Recipes.Matching_ingred}
-            Ingredients_to_buy	={Recipes.Ingredients_to_buy}
-            Image_link = {Recipes.Image_link}
-            Links = {Recipes.Link}
+            source={FilteredData.source}
+            commentID={FilteredData.commentID}
+            comment={FilteredData.comment}
+            recommend	={FilteredData.recommend}
+            commentLink	={FilteredData.commentLink}
+          
             />
             
         ))}
         
         </div>
-        
-        
-    
-
-        </div>   
-
-        
-        
-        
-        
+        </div>          
 );
 };
 export default About;

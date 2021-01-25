@@ -1,49 +1,39 @@
 import React from 'react';
-import { Card, Image, Icon } from 'semantic-ui-react';
-import {
-  Route,
-  NavLink,
-  Switch, Link
-} from "react-router-dom";
+import { Image, Header, Table } from 'semantic-ui-react';
+import fb from './fb.png'
+import star from "./star.png";
 
-const Recipe = ({Titles, Cuisine, Ingredients,Matching_ingred,Ingredients_to_buy, Image_link, Links}) => {
+
+
+// source	commentID	commentLink	postedDate	comment	recommend	dateTimeGathered
+// {Titles, Cuisine,Ingredients,Ingredients_to_buy, Image_link}
+const Recipe = ({source, commentID,comment,recommend, commentLink}) => {
 
     return(
-        <Card className = 'Card'>
-      <Image className = 'recipe-image' src = {Image_link} wrapped ui={false} />
-      <Card.Content>
-        <Card.Header>{Titles}</Card.Header>
-        <Card.Meta>{Cuisine}</Card.Meta>
-        <Card.Description>
-        {Ingredients.length <20 ? `${Ingredients}`: `${Ingredients.substring(0,200)}.....`} 
-    
-        
-        <Link to={Links}>
-      <button className = 'recipe__button'>
-      
-        View Recipe
-        
-        </button>
-        </Link>
+      <Table basic='very' celled collapsing>
+      <Table.Body>
 
-      </Card.Description>
-      </Card.Content>
-      <Card.Content extra>
-      <a>
-
-          <Icon name='user' />
-        Matching Ingredients {Matching_ingred}
+      <Table.Row>
+  <Table.Cell>
+    <Header as='h4' image>
+    <a href={commentLink}>
+      <Image src={fb} rounded size='mini' />
       </a>
-      <div>
-      <a>
-          <Icon name='user' />
-        Ingredients to purchase: {Ingredients_to_buy}
-      </a></div>
-      <div>
-        
-      </div>
-      </Card.Content>
-    </Card>
+      <Header.Content>
+      {commentID}
+        <Header.Subheader>{source}</Header.Subheader>
+      </Header.Content>
+    </Header>
+  </Table.Cell>
+  <Table.Cell>{comment}</Table.Cell>
+  <Table.Cell>
+  {recommend}<Image src={star} style={{width: "15px"}}/>
+  </Table.Cell>
+  </Table.Row>
+  
+      </Table.Body>
+    </Table>
+
 
     );
 }

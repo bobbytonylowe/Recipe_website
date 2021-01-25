@@ -1,0 +1,148 @@
+import numpy as np
+from flask import Flask, request, jsonify, render_template
+import pickle
+import pandas as pd
+import time
+
+
+from flask_cors import CORS, cross_origin
+
+app = Flask(__name__)
+CORS(app)
+
+# Functions _____________
+def Word_Search(x):
+    df[x] = df['Ingredients'].str.contains(x, flags=re.IGNORECASE)
+    df[x] = df[x].replace(True, 1)
+    df[x] = df[x].replace(False, 0)
+    return 
+
+def ingredients_in(list_of_ingredients_in):
+    [Word_Search(ingred) for ingred in list_of_ingredients_in]
+    return
+
+def split(x):
+    return x.split(',')
+
+def Check_if_in(df):
+    ingredients = [df.Ingredients.count(x) for x in df.Ingredients_inn_split]
+    ingredients = [1 if i >=1 else i for i in ingredients]
+    return sum(ingredients)
+
+# Functions END _____________
+
+   
+@app.route('/')
+def test():
+    df = pd.read_csv('JAMIE_MOB_BBC_29_04_2020_21_4_2020(1).csv', encoding= 'unicode_escape')
+    titles = df['Title'].tolist()
+    Recipes  = df.to_dict('records')
+    ex1 = jsonify({'Recipes' : Recipes})
+    return ex1
+
+@app.route('/time')
+def get_current_time():
+    return {'time': time.time()}
+
+
+dd = {'Image_link':"//img1.jamieoliver.com/jamieoliver/recipe-database/oldImages/xtra_med/185_1_1438936276.jpg?tr=w-414",
+'Ingredients':"200 g cannellini or borlotti beans fresh or dried and soaked overnight , 1 bay leaf, 1 tomato squashed , 1 small potato peeled , sea salt, freshly ground black pepper, olive oil, 4 rashers higher-welfare smoked pancetta or bacon, 2 small red onions peeled and finely chopped , 2 carrots peeled and chopped , 2 sticks celery trimmed and chopped , \u00bd head fennel chopped , 3 cloves garlic peeled and finely chopped , 1 small bunch fresh basil leaves and stalks separated , 2x400 g good-quality tinned plum tomatoes, 1 glass red wine, 2 small courgettes quartered and sliced , 200 g chard or spinach washed and roughly sliced (including stalks) , 565 ml organic chicken ham or vegetable stock, 55 g dried pasta, 1 block parmesan cheese to serve \r\r\r\r\r\r\r\r\r\r\r\r\r\r\n",
+'Ingredients_to_buy':18,
+'Link':"https://www.jamieoliver.com/recipes/vegetables-recipes/early-autumn-minestrone-minestrone-d-inizio-autunno/",
+'Matching_ingred':3,"Title":"Early Autumn Minestrone (Minestrone D'Inizio Autunno)",
+'cuisine':"Italian"}
+
+@app.route('/dataa')
+def get_dataa():
+    return jsonify({'rating' : {'rating':dd}})
+
+@app.route('/rating')
+def rating():
+
+    return jsonify({'rating' : {'rating':5}})
+
+@app.route('/all_recipes')
+def all_recipes():
+    df = pd.read_csv('JAMIE_MOB_BBC_29_04_2020(1).csv', encoding= 'unicode_escape')
+    df = df.replace(np.nan, '')
+    Titles = df['Title'].tolist()
+    Cuisine = df['cuisine'].tolist()
+    Ingredients = df['Ingredients'].tolist()
+    Link = df['Link'].tolist()
+    #Recipes = [{'Titles' : Titles, 'Cuisine': Cuisine, 'Ingredients': Ingredients, 'Link':Link}]
+    Recipes  = df.to_dict('records')
+    ex1 = jsonify({'Recipes' : Recipes})
+    return ex1
+
+@app.route('/all_comments')
+def all_recipes():
+    df = pd.read_csv('AllData.csv')
+    Recipes  = df.to_dict('records')
+    ex1 = jsonify({'Recipes' : Recipes})
+    return jsonify({'Recipes' : 'Recipes'})
+
+
+@app.route('/titles')
+def titles():
+    df = pd.read_csv('JAMIE_MOB_BBC_29_04_2020(1).csv', encoding= 'unicode_escape')
+    df = df.replace(np.nan, '')
+    titles = df['Title'].tolist()
+    return jsonify({'Titles' : titles})
+
+
+
+@app.route('/recipes', defaults ={'ingreds': "onions, chicken, pasta"})
+@app.route('/recipes/<ingreds>', methods = ['GET'])
+@cross_origin()
+def recipes(ingreds):
+    #text = request.get_json()
+    #text = {"ingred":"onions, chicken, pasta"}
+    text = {"ingreds":ingreds}
+
+    df = pd.read_csv('JAMIE_MOB_BBC_29_04_2020(1).csv', encoding= 'unicode_escape')
+    df = df.replace(np.nan, '')
+    df['Ingredients_inn'] = str(text['ingreds'])
+    df['Ingredients'] = df['Ingredients'].str.lower()
+    df['Ingredients_inn_split'] = df['Ingredients_inn'].apply(split)
+    df = df.assign(Matching_ingred=df.apply(Check_if_in, axis = 1))
+    df['Ingredients_to_buy'] = df['Number of ingredients'] - df['Matching_ingred']
+    df1 = df[df['Matching_ingred'] > 1]
+    df1 = df1[df1['Number of ingredients'] > 0]
+    df1 = df1.sort_values(['Matching_ingred', 'Ingredients_to_buy'], ascending=[False, True])
+    
+    df1 = df1[['cuisine', 'Title', 'Ingredients', 'Link', 'Matching_ingred', 'Ingredients_to_buy', 'Image_link']]
+
+    #titles = df1['Title'].tolist()
+    #return jsonify({'Titles' : titles})
+    Recipes  = df1.to_dict('records')
+    ex1 = jsonify({'Recipes' : Recipes})
+    return ex1
+
+ddd = {'source':"google",
+'comment':"r dried and soaked overnight , 1 bay leaf, 1 tomato squashed , 1 small potato peeled , sea salt, freshly ground black pepper, olive oil, 4 rashers higher-welfare smoked pancetta or bacon, 2 small red onions peeled and finely chopped , 2 carrots peeled and chopped , 2 sticks celery trimmed and chopped , \u00bd head fennel chopped , 3 cloves garlic peeled and finely chopped , 1 small bunch fresh basil leaves and stalks separated , 2x400 g good-quality tinned plum tomatoes, 1 glass red wine, 2 small courgettes quartered and sliced , 200 g chard or spinach washed and roughly sliced (including stalks) , 565 ml organic chicken ham or vegetable stock, 55 g dried pasta, 1 block parmesan cheese to serve \r\r\r\r\r\r\r\r\r\r\r\r\r\r\n",
+'commentID':18,
+'commentLink':"https://www.jamieoliver.com/recipes/vegetables-recipes/early-autumn-minestrone-minestrone-d-inizio-autunno/",
+'recommend':3}
+
+# @app.route('/search', defaults ={'text': "food"})
+# @app.route('/search/<text>', methods = ['GET'])
+# @cross_origin()
+# def recipes(text):
+#     #text = request.get_json()
+#     #text = {"ingred":"onions, chicken, pasta"}
+    
+#     df = pd.read_csv('AllData.csv')
+#     df1 = df[df['comment'].notnull()]
+#     df1 = df1[df1['comment'].str.contains('dish')]
+#     FilteredData  = df1.to_dict('records')
+#     ex1 = jsonify({'FilteredData' : ddd})
+#     return jsonify({'FilteredData' : {'FilteredData':dd}})
+
+@app.route('/search')
+@cross_origin()
+def recipes():
+    return jsonify({'FilteredData' : {'FilteredData':ddd}})
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

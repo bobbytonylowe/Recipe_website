@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import Recipe from "./Recipe";
-import { Input, Button } from 'semantic-ui-react';
-import {
-  Route,
-  NavLink,
-  Switch
-} from "react-router-dom";
+import React from 'react';
+
 import logo from './FOODAI.PNG';
 
 const About_page = () => {
